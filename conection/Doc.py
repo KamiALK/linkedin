@@ -28,6 +28,26 @@ service = build('docs', 'v1', credentials=credentials)
 document = service.documents().get(documentId=document_id).execute()
 document_content = document.get('body').get('content')
 
-# Imprimir el contenido del documento
-print('Contenido del documento:')
-print(document_content)
+
+
+def extract_text_from_document(document_content):
+    text = ""
+    for content in document_content:
+        if 'paragraph' in content:
+            for element in content['paragraph']['elements']:
+                if 'textRun' in element:
+                    text += element['textRun']['content']
+        elif 'table' in content:
+            for row in content['table']['tableRows']:
+                for cell in row['tableCells']:
+                    for element in cell['content']:
+                        if 'textRun' in element['paragraph']['elements'][0]:
+                            text += element['paragraph']['elements'][0]['textRun']['content']
+    return text
+
+# Utilizar la función para extraer el texto del documento
+document_text = extract_text_from_document(document_content)
+
+# Imprimir el texto extraído
+print('Texto del documento:')
+print(document_text)
