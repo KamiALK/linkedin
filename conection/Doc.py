@@ -27,7 +27,7 @@ service = build('docs', 'v1', credentials=credentials)
 # Obtener el contenido del documento
 document = service.documents().get(documentId=document_id).execute()
 document_content = document.get('body').get('content')
-
+print(document_content)
 
 
 def extract_text_from_document(document_content):
