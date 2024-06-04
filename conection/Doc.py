@@ -32,22 +32,51 @@ document_content = document.get('body').get('content')
 
 def extract_text_from_document(document_content):
     text = ""
+    contador = 0
     for content in document_content:
         if 'paragraph' in content:
             for element in content['paragraph']['elements']:
                 if 'textRun' in element:
                     text += element['textRun']['content']
+                    contador+=1
         elif 'table' in content:
             for row in content['table']['tableRows']:
                 for cell in row['tableCells']:
                     for element in cell['content']:
                         if 'textRun' in element['paragraph']['elements'][0]:
                             text += element['paragraph']['elements'][0]['textRun']['content']
+                            contador += 1
+                            
+    print(contador)
     return text
 
 # Utilizar la función para extraer el texto del documento
 document_text = extract_text_from_document(document_content)
 
 # Imprimir el texto extraído
-print('Texto del documento:')
-print(document_text)
+# print('Texto del documento:')
+# print(document_text)
+
+
+def crear_diccionario_contenido(document_text):
+    contenido_diccionario = {}
+    contador = 1
+
+    for content in document_content:
+        if 'paragraph' in content:
+            for element in content['paragraph']['elements']:
+                if 'textRun' in element:
+                    contenido_diccionario[contador] = element['textRun']['content']
+                    contador += 1
+
+    return contenido_diccionario
+diccionario = crear_diccionario_contenido(document_content)
+# print(diccionario)
+
+def imprimir_diccionario(diccionario):
+    for clave, valor in diccionario.items():
+        print(f"{clave}: {valor}")
+        # print()  # Agrega un salto de línea después de cada clave
+
+# Ejemplo de uso:
+# imprimir_diccionario(diccionario)
