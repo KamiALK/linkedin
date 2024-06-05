@@ -27,12 +27,12 @@ service = build('docs', 'v1', credentials=credentials)
 # Obtener el contenido del documento
 document = service.documents().get(documentId=document_id).execute()
 document_content = document.get('body').get('content')
-
+# print(document_content)
 
 
 def extract_text_from_document(document_content):
     text = ""
-    contador = 0
+    contador = 1
     for content in document_content:
         if 'paragraph' in content:
             for element in content['paragraph']['elements']:
@@ -47,16 +47,11 @@ def extract_text_from_document(document_content):
                             text += element['paragraph']['elements'][0]['textRun']['content']
                             contador += 1
                             
-    print(contador)
+    # print(contador)
     return text
 
 # Utilizar la función para extraer el texto del documento
 document_text = extract_text_from_document(document_content)
-
-# Imprimir el texto extraído
-# print('Texto del documento:')
-# print(document_text)
-
 
 def crear_diccionario_contenido(document_text):
     contenido_diccionario = {}
@@ -70,7 +65,8 @@ def crear_diccionario_contenido(document_text):
                     contador += 1
 
     return contenido_diccionario
-diccionario = crear_diccionario_contenido(document_content)
+dic = crear_diccionario_contenido(document_content)
+dic_dos = crear_diccionario_contenido(document_content)
 # print(diccionario)
 
 def imprimir_diccionario(diccionario):
@@ -80,3 +76,57 @@ def imprimir_diccionario(diccionario):
 
 # Ejemplo de uso:
 # imprimir_diccionario(diccionario)
+
+nuevo_valor=input(str("ingrese valor nuevo: "))
+dic_dos[1]=nuevo_valor
+dic_dos[3]="ingeniero de sistemas"
+
+
+
+# Crear la solicitud de actualización por lotes
+class DocumentUpdater:
+    def __init__(self):
+        self.solicitudes = []
+
+    def add(self, valor_viejo, valor_nuevo):
+        solicitud = {
+            'replaceAllText': {
+                'replaceText': valor_nuevo,
+                'containsText': {
+                    'text': valor_viejo,
+                    'matchCase': True
+                }
+            }
+        }
+        self.solicitudes.append(solicitud)
+
+    def get_solicitudes(self):
+        return {'requests': self.solicitudes}
+
+def iterar_diccionarios(diccionario_original, diccionario_clon):
+    updater = DocumentUpdater()  # Crear una instancia de DocumentUpdater
+
+    for indice, valor_original in diccionario_original.items():
+        valor_clon = diccionario_clon[indice]  # Obtener el valor del clon
+
+        updater.add(valor_original, valor_clon)
+
+    solicitud = updater.get_solicitudes()
+
+    return solicitud
+
+solicitud = iterar_diccionarios(dic, dic_dos)
+
+# Uso de la clase DocumentUpdater
+# updater = DocumentUpdater()
+# updater.add(f'{dic[1]}, f'{dic_dos[1]}')
+
+# updater.add("Desarollador backend", "hola papito")
+# Obtener la solicitud generada por la clase
+# solicitud = updater.get_solicitudes()
+# print(dic[1])
+# print(solicitud)
+
+# Ejecutar la solicitud de actualización por lotes
+service.documents().batchUpdate(documentId=document_id, body=solicitud).execute()
+print('Documento actualizado con éxito.')
