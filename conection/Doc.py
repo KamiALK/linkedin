@@ -77,9 +77,8 @@ def imprimir_diccionario(diccionario):
 # Ejemplo de uso:
 # imprimir_diccionario(diccionario)
 
-nuevo_valor=input(str("ingrese valor nuevo: "))
-dic_dos[1]=nuevo_valor
-dic_dos[3]="ingeniero de sistemas"
+# nuevo_valor=input(str("ingrese valor nuevo: "))
+# dic_dos[1]=nuevo_valor
 
 
 
