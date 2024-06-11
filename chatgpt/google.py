@@ -10,7 +10,6 @@ from apps.oculto import Iniciar_driver
 from dotenv import load_dotenv
 import os
 
-
 load_dotenv()
 
 user_open = os.getenv("OPENAI_USER")
