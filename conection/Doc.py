@@ -1,4 +1,3 @@
-
 import os
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
@@ -10,76 +9,85 @@ load_dotenv()
 # Obtener las variables de entorno
 google_service_account_email = os.getenv("GOOGLE_SERVICE_ACCOUNT_EMAIL")
 google_private_key = os.getenv("GOOGLE_PRIVATE_KEY")
-document_id = os.getenv('GOOGLE_DOCUMENT_ID')
-token = os.getenv('TOKEN_URI')
+document_id = os.getenv("GOOGLE_DOCUMENT_ID")
+token = os.getenv("TOKEN_URI")
 
 # Crear las credenciales
-credentials = Credentials.from_service_account_info({
-    'type': 'service_account',
-    'client_email': google_service_account_email,
-    'private_key': google_private_key.replace('\\n', '\n'),
-    'token_uri': token
-})
+credentials = Credentials.from_service_account_info(
+    {
+        "type": "service_account",
+        "client_email": google_service_account_email,
+        "private_key": google_private_key.replace("\\n", "\n"),
+        "token_uri": token,
+    }
+)
 
 # Construir el servicio de Google Docs
-service = build('docs', 'v1', credentials=credentials)
+service = build("docs", "v1", credentials=credentials)
 
 # Obtener el contenido del documento
 document = service.documents().get(documentId=document_id).execute()
-document_content = document.get('body').get('content')
-# print(document_content)
+document_content = document.get("body").get("content")
+print(document_content)
 
 
 def extract_text_from_document(document_content):
     text = ""
     contador = 1
     for content in document_content:
-        if 'paragraph' in content:
-            for element in content['paragraph']['elements']:
-                if 'textRun' in element:
-                    text += element['textRun']['content']
-                    contador+=1
-        elif 'table' in content:
-            for row in content['table']['tableRows']:
-                for cell in row['tableCells']:
-                    for element in cell['content']:
-                        if 'textRun' in element['paragraph']['elements'][0]:
-                            text += element['paragraph']['elements'][0]['textRun']['content']
+        if "paragraph" in content:
+            for element in content["paragraph"]["elements"]:
+                if "textRun" in element:
+                    text += element["textRun"]["content"]
+                    contador += 1
+        elif "table" in content:
+            for row in content["table"]["tableRows"]:
+                for cell in row["tableCells"]:
+                    for element in cell["content"]:
+                        if "textRun" in element["paragraph"]["elements"][0]:
+                            text += element["paragraph"]["elements"][0]["textRun"][
+                                "content"
+                            ]
                             contador += 1
-                            
+
     # print(contador)
     return text
 
+
 # Utilizar la función para extraer el texto del documento
 document_text = extract_text_from_document(document_content)
+
 
 def crear_diccionario_contenido(document_text):
     contenido_diccionario = {}
     contador = 1
 
     for content in document_content:
-        if 'paragraph' in content:
-            for element in content['paragraph']['elements']:
-                if 'textRun' in element:
-                    contenido_diccionario[contador] = element['textRun']['content']
+        if "paragraph" in content:
+            for element in content["paragraph"]["elements"]:
+                if "textRun" in element:
+                    contenido_diccionario[contador] = element["textRun"]["content"]
                     contador += 1
 
     return contenido_diccionario
+
+
 dic = crear_diccionario_contenido(document_content)
 dic_dos = crear_diccionario_contenido(document_content)
-# print(diccionario)
+print(dic)
+
 
 def imprimir_diccionario(diccionario):
     for clave, valor in diccionario.items():
         print(f"{clave}: {valor}")
         # print()  # Agrega un salto de línea después de cada clave
 
+
 # Ejemplo de uso:
 # imprimir_diccionario(diccionario)
 
 # nuevo_valor=input(str("ingrese valor nuevo: "))
 # dic_dos[1]=nuevo_valor
-
 
 
 # Crear la solicitud de actualización por lotes
@@ -89,18 +97,16 @@ class DocumentUpdater:
 
     def add(self, valor_viejo, valor_nuevo):
         solicitud = {
-            'replaceAllText': {
-                'replaceText': valor_nuevo,
-                'containsText': {
-                    'text': valor_viejo,
-                    'matchCase': True
-                }
+            "replaceAllText": {
+                "replaceText": valor_nuevo,
+                "containsText": {"text": valor_viejo, "matchCase": True},
             }
         }
         self.solicitudes.append(solicitud)
 
     def get_solicitudes(self):
-        return {'requests': self.solicitudes}
+        return {"requests": self.solicitudes}
+
 
 def iterar_diccionarios(diccionario_original, diccionario_clon):
     updater = DocumentUpdater()  # Crear una instancia de DocumentUpdater
@@ -113,6 +119,7 @@ def iterar_diccionarios(diccionario_original, diccionario_clon):
     solicitud = updater.get_solicitudes()
 
     return solicitud
+
 
 solicitud = iterar_diccionarios(dic, dic_dos)
 
@@ -128,4 +135,4 @@ solicitud = iterar_diccionarios(dic, dic_dos)
 
 # Ejecutar la solicitud de actualización por lotes
 service.documents().batchUpdate(documentId=document_id, body=solicitud).execute()
-print('Documento actualizado con éxito.')
+print("Documento actualizado con éxito.")
