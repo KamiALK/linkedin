@@ -11,6 +11,7 @@ import time
 import re
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 # Configuración del navegador
 opts = Options()
@@ -76,12 +77,12 @@ while True:
     if trabajos_despues <= trabajos_antes:
         break
     print(trabajos_despues)
-
-# Imprimir los IDs de los trabajos
-for job_id in job_ids:
-    contador_trabajos += 1
-    print(contador_trabajos, ":", job_id)
-
+#
+# # Imprimir los IDs de los trabajos
+# for job_id in job_ids:
+#     contador_trabajos += 1
+#     print(contador_trabajos, ":", job_id)
+#
 # Cerrar el navegador
 driver.quit()
 
@@ -102,6 +103,7 @@ for job_id in job_ids:
     # Create a dictionary to store job details
     job_post = {}
 
+    job_post["id_oferta"] = job_id
     # Try to extract and store the job title
     try:
         job_post["job_title"] = job_soup.find(
@@ -140,7 +142,33 @@ for job_id in job_ids:
     except:
         job_post["num_applicants"] = None
 
+    # Try to extract and store the job description
+    try:
+        job_description_section = job_soup.find(
+            "div", {"class": "show-more-less-html__markup"}
+        )
+        job_description = ""
+        if job_description_section:
+            for element in job_description_section.find_all(
+                ["strong", "ul", "li", "br"]
+            ):
+                if element.name == "br":
+                    job_description += "\n"
+                else:
+                    job_description += element.get_text(strip=True) + " "
+        job_post["job_description"] = job_description.strip()
+    except:
+        job_post["job_description"] = None
+
     # Append the job details to the job_list
     job_list.append(job_post)
-# Check if the list contains all the desired data
-print(job_list)
+# print(job_list)
+
+jobs_df = pd.DataFrame(job_list)
+# print(jobs_df)
+# Save the DataFrame to a CSV file
+try:
+    jobs_df.to_csv("vacantes.csv", index=False)
+    print("Datos guardados en vacantes.csv")
+except Exception as e:
+    print(f"Error al guardar los datos en vacantes.csv: {e}")

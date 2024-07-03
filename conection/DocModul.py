@@ -54,4 +54,19 @@ def texto():
     document_id = os.getenv("GOOGLE_DOCUMENT_ID")
     document_content = obtener_contenido_de_documento(service, document_id)
     texto = extraer_texto_de_documento(document_content)
-    print(texto)
+    # print(texto)
+    return document_content
+
+
+def diccionario(document_content):
+    contenido_diccionario = {}
+    contador = 1
+
+    for content in document_content:
+        if "paragraph" in content:
+            for element in content["paragraph"]["elements"]:
+                if "textRun" in element:
+                    contenido_diccionario[contador] = element["textRun"]["content"]
+                    contador += 1
+    # print(contenido_diccionario)
+    return contenido_diccionario

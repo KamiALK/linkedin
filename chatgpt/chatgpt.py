@@ -14,7 +14,9 @@ from selenium.common.exceptions import TimeoutException
 
 # propios
 from apps.oculto import Iniciar_driver
+from apps.variable import input_promt
 from funcion import esperar_boton_detener_generacion
+
 
 user = "camilo"
 password = "alca"
@@ -51,6 +53,7 @@ class Programa:
 
         # Pulsamos en el avioncito de send
         try:
+            time.sleep(10)
             e = self.driver.find_element(
                 By.CSS_SELECTOR, "button[data-testid='send-button']"
             )
@@ -85,15 +88,19 @@ class Programa:
         self.driver.quit()
 
 
-""" Main """
 if __name__ == "__main__":
     programa = Programa(user, password)
-    # input("pausa")
     while True:
-        prompt = input("Introduzca algo: ")
+        time.sleep(2)
 
+        tupla = input_promt(vacante, titulo)
+        cadena_resultante = str(tupla[0]) + " " + str(tupla[1]) + " " + str(tupla[2])
+        print(type(tupla))
+        prompt = cadena_resultante
         if prompt.lower() == "cerrar":
             programa.cerrar()
             sys.exit()
         else:
+            time.sleep(2)
             respuesta = programa.chatear(prompt=prompt)
+            time.sleep(2)

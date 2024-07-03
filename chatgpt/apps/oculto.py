@@ -1,5 +1,6 @@
 import undetected_chromedriver as uc
 
+
 def Iniciar_driver(pos="maximizada"):
     """Inicia un navegador Chrome y devuelve el objeto WebDriver instanciado"""
     # Instanciamos las opciones de Chrome
@@ -13,7 +14,9 @@ def Iniciar_driver(pos="maximizada"):
         },
     )
     # Configuramos la opción headless dentro de ChromeOptions
-    options.headless = False  # Cambiar a True si se desea iniciar el navegador en modo headless
+    options.headless = (
+        False  # Cambiar a True si se desea iniciar el navegador en modo headless
+    )
 
     # Iniciamos el driver
     driver = uc.Chrome(
@@ -26,4 +29,3 @@ def Iniciar_driver(pos="maximizada"):
         ancho, alto = driver.get_window_size().values()
         driver.set_window_rect(x=0, y=0, width=ancho // 2, height=alto)
     return driver
-
